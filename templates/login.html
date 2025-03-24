@@ -1,0 +1,48 @@
+{% extends 'layout.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% block customCSS %}
+<style>
+    .form-signin {
+        max-width: 330px;
+        margin: auto;
+        padding: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="form-signin">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="mt-3">
+        {% for message in messages %}
+        <div class="alert alert-primary alert-dismissible fade show d-flex align-items-center" role="alert">
+            <i class="bi bi-info-circle me-2"></i>
+            <strong>{{ message }}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+        <h1 class="h3 mb-3 fw-normal text-center">Login</h1>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        
+        <div class="form-floating mb-3">
+            <input type="text" class="form-control" id="username" name="username" placeholder="Username" required autofocus>
+            <label for="username">Username</label>
+        </div>
+        
+        <div class="form-floating mb-3">
+            <input type="password" class="form-control" id="password" name="password" placeholder="Password" required autocomplete="off">
+            <label for="password">Password</label>
+        </div>
+        
+        <button class="w-100 btn btn-lg btn-primary" type="submit">Iniciar sesion</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,60 +1,158 @@
-{% extends 'layout.html' %}
+{% extends "layout.html" %}
+{% import "_macros.html" as macros %}
 
-{% block content %}
+{% block body %}
+<div class="container mt-5">
+    <!-- Sección: Realizar Pedido -->
+    <section class="mb-5 p-4 bg-pastel-blue rounded shadow-sm"> <!-- Fondo azul pastel -->
+        <form action="/pedido" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-            <tr>
-                <th scope="col" class="px-6 py-3">Nombre</th>
-                <th scope="col" class="px-6 py-3">Apaterno</th>
-                <th scope="col" class="px-6 py-3">Correo</th>
-                <th scope="col" class="px-6 py-3">Editar</th>
-                <th scope="col" class="px-6 py-3">Eliminar</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for alum in alumnos %}
-            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600">
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ alum.nombre }}</th>
-                <td class="px-6 py-4">{{ alum.apaterno }}</td>
-                <td class="px-6 py-4">{{ alum.email }}</td>
-                <td class="px-6 py-4">
-                    <a href="modificar?{{ alum.id }}">
-                        <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m11.5 11.5 2.071 1.994M4 10h5m11 0h-1.5M12 7V4M7 7V4m10 3V4m-7 13H8v-2l5.227-5.292a1.46 1.46 0 0 1 2.065 2.065L10 17Zm-5 3h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Z"/>
-                        </svg>
-                        Editar
-                    </a>
-                </td>
-                <td class="px-6 py-4">
-                    <a href="eliminar?{{ alum.id }}">
-                        <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 7h12M6 7l1 12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-12M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/>
-                        </svg>
-                        Eliminar
-                    </a>
-                </td>
-                <td class="px-6 py-4">
-                    <a href="detalles?id={{ alum.id }}">
-                        <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 20.5c4.142 0 7.5-3.358 7.5-7.5s-3.358-7.5-7.5-7.5-7.5 3.358-7.5 7.5 3.358 7.5 7.5 7.5Z"/>
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/>
-                        </svg>
-                        Detalles
-                    </a>
-                </td>
-            </svg>
-        </a>
-    </td>
-</a>
-                <td class="px-6 py-4 text-right">
-                    <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Eliminar</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            <!-- Mensajes Flash -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} mb-4">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <h2 class="h4 mb-4">Realizar Pedido</h2>
+
+            <!-- Campos del Formulario -->
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Nombre</label>
+                    <input type="text" name="nombre" value="{{ session.get('cliente', {}).get('nombre', '') }}" class="form-control" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Dirección</label>
+                    <input type="text" name="direccion" value="{{ session.get('cliente', {}).get('direccion', '') }}" class="form-control" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Teléfono</label>
+                    <input type="text" name="telefono" value="{{ session.get('cliente', {}).get('telefono', '') }}" class="form-control" required>
+                </div>
+            </div>
+
+            <!-- Tamaño de Pizza e Ingredientes -->
+            <div class="row g-3 mt-3">
+                <div class="col-md-6">
+                    <fieldset class="border p-3 rounded">
+                        <legend class="h6">Tamaño de Pizza</legend>
+                        {% for size, price in [('chica', 40), ('mediana', 80), ('grande', 120)] %}
+                            <div class="form-check">
+                                <input type="radio" name="size" value="{{ size }}" class="form-check-input" required>
+                                <label class="form-check-label">{{ size }} ${{ price }}</label>
+                            </div>
+                        {% endfor %}
+                    </fieldset>
+                </div>
+                <div class="col-md-6">
+                    <fieldset class="border p-3 rounded">
+                        <legend class="h6">Ingredientes ($10 c/u)</legend>
+                        {% for ing in ['jamon', 'piña', 'champiñones'] %}
+                            <div class="form-check">
+                                <input type="checkbox" name="ingredientes" value="{{ ing }}" class="form-check-input">
+                                <label class="form-check-label">{{ ing }}</label>
+                            </div>
+                        {% endfor %}
+                    </fieldset>
+                </div>
+            </div>
+
+            <!-- Número de Pizzas y Botón de Agregar -->
+            <div class="mt-4 d-flex align-items-center">
+                <label class="me-2">Núm. de Pizzas:</label>
+                <input type="number" name="num_pizzas" min="1" class="form-control w-auto me-3" required>
+                <button type="submit" class="btn btn-primary">
+                    Agregar
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <!-- Sección: Ventas del Día -->
+    <section class="mb-5 p-4 bg-white rounded shadow-sm">
+        <h2 class="h4 mb-4">Ventas del Día</h2>
+
+        <!-- Tabla de Ventas -->
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for venta in ventas %}
+                        <tr>
+                            <td>{{ venta.nombre }}</td>
+                            <td class="text-success fw-bold">${{ "%.2f"|format(venta.total) }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Total de Ventas -->
+        {% set total_ventas = ventas | sum(attribute='total') %}
+        <div class="alert alert-success mt-3">
+            <strong>Total de ventas del día:</strong> ${{ "%.2f"|format(total_ventas) }}
+        </div>
+    </section>
+
+    <!-- Sección: Pedidos Actuales -->
+    <section class="mb-5 p-4 bg-white rounded shadow-sm">
+        <h2 class="h4 mb-4">Pedidos Actuales</h2>
+
+        <!-- Tabla de Pedidos -->
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Teléfono</th>
+                        <th>Tamaño</th>
+                        <th>Ingredientes</th>
+                        <th>Cantidad</th>
+                        <th>Subtotal</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pedido in pedidos %}
+                        <tr>
+                            <td>{{ pedido.nombre }}</td>
+                            <td>{{ pedido.telefono }}</td>
+                            <td>{{ pedido.size }}</td>
+                            <td>{{ ", ".join(pedido.ingredientes) }}</td>
+                            <td>{{ pedido.num_pizzas }}</td>
+                            <td class="text-success fw-bold">${{ pedido.subtotal }}</td>
+                            <td>
+                                <form action="{{ url_for('quitar_pedido', index=loop.index0) }}" method="POST">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        Quitar
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Botón: Terminar Pedidos -->
+    <form action="{{ url_for('terminar_pedidos') }}" method="POST" class="text-center mt-4">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-primary">
+            Terminar Pedidos
+        </button>
+    </form>
 </div>
-
 {% endblock %}
