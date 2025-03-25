@@ -22,7 +22,6 @@ login_manager = LoginManager(app)
 login_manager.login_view = "login"  
 
 @app.route("/", methods=["GET", "POST"])
-@login_required
 def login():
 
     if request.method == "POST":
