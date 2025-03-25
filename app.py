@@ -3,7 +3,6 @@ from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from models import Pedidos, Venta, db, Cliente, Usuario  
 from config import DevelopmentConfig
-
 import os
 import forms
 
@@ -17,13 +16,15 @@ csrf = CSRFProtect(app)
 db.init_app(app)
 with app.app_context():
     db.create_all()
-    
+    PEDIDOS_FILE = "pedidos.txt"
+
 login_manager = LoginManager(app)
 login_manager.login_view = "login"  
 
-PEDIDOS_FILE = "pedidos.txt"
 @app.route("/", methods=["GET", "POST"])
+
 def login():
+
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
@@ -45,6 +46,7 @@ def load_user(user_id):
     return Usuario.query.get(int(user_id))
 
 @app.route('/index', methods=['GET', 'POST'])
+@login_required
 def index():
     create_form = forms.ClientesForm(request.form)
     pedidos = cargar_pedidos()
